@@ -1,4 +1,16 @@
 //-----------------------------------
+// Graph Helpers
+//-----------------------------------
+
+/obj/pipe/proc/get_graph()
+    RETURN_TYPE(/datum/graph/pipe)
+    return node.graph
+
+/obj/pipe/proc/get_node()
+    RETURN_TYPE(/datum/node/physical/pipe)
+    return node
+
+//-----------------------------------
 // Connection Helpers
 //-----------------------------------
 

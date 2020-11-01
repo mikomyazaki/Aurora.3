@@ -2,8 +2,9 @@
 /obj/pipe
     layer = PIPE_LAYER
 
+    var/node_type = /datum/node/physical/pipe
     var/datum/node/physical/pipe/node // This node represents this pipe when added to a pipegraph
-    var/list/connection_dirs = list() // Contains a list of directions this pipe may connect via, will set connections and connection_limit in init. One connection per direction. Assumes initial dir is NORTH.
+    var/list/connection_dirs = PIPE_DIR_NONE // Contains a list of directions this pipe may connect via, will set connections and connection_limit in init. One connection per direction. Assumes initial dir is NORTH.
     var/connection_limit // Max number of connections, calculated from connection_dirs
 
     var/list/valid_connection_types // If defined, this pipe will only be able to connect to types & subtypes in this list
@@ -21,7 +22,7 @@
     if(mapload)
         return INITIALIZE_HINT_LATELOAD
     
-    node = new(src)
+    node = new node_type(src)
 
     set_directions()
 
@@ -41,11 +42,15 @@
 // Connect to one target pipe
 /obj/pipe/proc/connect(var/obj/pipe/P)
     testing("Trying to connect to [P]")
+    preConnect(P)
     if(connection_check(P) && connect_to(P))
-        OnConnect()
+        onConnect(P)
         return TRUE
 
-/obj/pipe/proc/OnConnect()
+/obj/pipe/proc/preConnect(var/obj/pipe/P)
+    return
+
+/obj/pipe/proc/onConnect(var/obj/pipe/P)
     testing("Connected to pipe!")
     return
 
@@ -64,10 +69,15 @@
 
 // Disconnect from one target pipe
 /obj/pipe/proc/disconnect(var/obj/pipe/P)
+    preDisconnect(P)
     . = disconnect_from(P)
-    OnDisconnect()
+    if(.)
+        onDisconnect(P)
 
-/obj/pipe/proc/OnDisconnect()
+/obj/pipe/proc/preDisconnect(var/obj/pipe/P)
+    return
+
+/obj/pipe/proc/onDisconnect(var/obj/pipe/P)
     return
 
 // Disconnect from all current connections, returns TRUE if we disconnect from at least one connected pipe

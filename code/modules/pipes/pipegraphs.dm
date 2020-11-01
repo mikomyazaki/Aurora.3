@@ -10,10 +10,11 @@
 
 
 /datum/node/physical/pipe
+    var/graph_type = /datum/graph/pipe
 
 /datum/node/physical/pipe/New()
     . = ..()
-    graph = new/datum/graph/pipe(list(src))
+    graph = new graph_type(list(src))
 
 /datum/node/physical/pipe/Destroy()
     if(graph.nodes.len == 1)
@@ -21,4 +22,6 @@
     return ..()
 
 /datum/node/physical/pipe/proc/get_pipe()
-    return holder
+    RETURN_TYPE(/obj/pipe)
+    var/obj/pipe/P = holder
+    return P

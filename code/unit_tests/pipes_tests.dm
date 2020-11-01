@@ -56,6 +56,8 @@
 			status = FAILURE
 	
 	if(!status)
+		if(length(invalid_pipe_defs) || length(invalid_mapped_pipes))
+			fail("Invalid pipes were found.")
 		if(length(invalid_pipe_defs))
 			log_unit_test("[ascii_red]--------------- [length(invalid_pipe_defs)] invalid pipes were found.")
 
@@ -70,6 +72,33 @@
 				log_unit_test("[ascii_red]--------------- Invalid mapped pipe of type [P.type] was found at [T.x] [T.y] [T.z].")
 	else
 		pass("All defined and mapped pipes have valid connection_dirs set.")
+
+	return 1
+
+/**
+ * Check if pipes have the expected node types
+ */
+/datum/unit_test/pipes/pipe_node_types
+	name = "PIPES: Pipes shall be related to the appropriate nodes for their type."
+
+/datum/unit_test/pipes/pipe_node_types/start_test()
+	var/list/list/pipe_node_types = list(
+		/obj/pipe/atmospherics = list(/datum/node/physical/pipe/atmospherics)
+	)
+
+	var/list/invalid_pipes = list()
+
+	for(var/P in pipe_node_types)
+		var/obj/pipe/pipe = P
+		if(!(initial(pipe.node_type) in pipe_node_types[P]))
+			invalid_pipes += P
+
+	if(length(invalid_pipes))
+		fail("Invalid pipes were found.")
+		for(var/P in invalid_pipes)
+			log_unit_test("[ascii_red]--------------- Pipe of type [P] had an invalid node path set.")
+	else
+		pass("All pipes had expected node types.")
 
 	return 1
 
