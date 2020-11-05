@@ -11,15 +11,13 @@
 
 /obj/pipe/atmospherics/Destroy()
     // Release contained gas into the environment
+    loc.assume_air(get_gas())
     return ..()
 
 /obj/pipe/atmospherics/onConnect(var/obj/pipe/atmospherics/P)
     ..()
-    // Update graph gases + check pressure
-
-    // Update graph volume
+    // Update graph gases
     change_volume(volume)
-    // Update graph max_pressure
     get_graph().update_max_pressure()
 
     // Check if we're leaking
@@ -34,7 +32,7 @@
 /obj/pipe/atmospherics/onDisconnect(var/obj/pipe/atmospherics/P)
     ..()
 
-    // Update graph gases + check pressure
+    // Update graph gases
     get_graph().update_max_pressure()
 
     // Check if we're leaking
@@ -45,13 +43,33 @@
     if(!leaking)
         return PROCESS_KILL
     // Make graph pressure equalize with environment pressure
+    var/datum/gas_mixture/environment = loc.return_air()
+    var/datum/gas_mixture/gas = get_gas()
+
+    var/pressure_delta = environment.return_pressure() - gas.return_pressure()
+    if(pressure_delta < 0)
+        var/flow = volumetric_flow(pressure_delta)
+        if(flow >= MIN_FLOW)
+            // transfer flow amount of gas from pipe to environment
+            environment.merge(gas.remove(flow))
+    //else
+        // Gas flows into pipe
 
 /obj/pipe/atmospherics/proc/update_leaking()
-    leaking = !can_leak && HAS_FREE_CONNECTIONS
+    leaking = can_leak && HAS_FREE_CONNECTIONS
     if(leaking)
         START_PROCESSING(SSprocessing, src)
     else
         STOP_PROCESSING(SSprocessing, src)
-
+    return leaking
 
 /obj/pipe/atmospherics/update_icon()
+
+/obj/pipe/atmospherics/proc/fill_with_gas_test()
+    var/datum/gas_mixture/gas = get_gas()
+    var/turf/T = get_turf(src)
+    var/datum/gas_mixture/environment = T.return_air()
+    
+    gas.gas = environment.gas.Copy()
+    gas.temperature = environment.temperature
+    gas.total_moles = environment.total_moles   

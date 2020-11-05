@@ -1,5 +1,5 @@
 //-----------------------------------
-// Pressure Helpers
+// Graph Helpers
 //-----------------------------------
 
 /obj/pipe/atmospherics/get_graph()
@@ -70,3 +70,11 @@
 /obj/pipe/atmospherics/proc/set_total_moles(var/total_moles)
     var/datum/gas_mixture/G = get_gas()
     G.total_moles = total_moles
+
+//-----------------------------------
+// Physics Helpers
+//-----------------------------------
+
+// Simplified Poiseuille's Equation - Assumes pipe is cylindrical, and that the pressure drop is over exactly one pipe segment
+/obj/pipe/atmospherics/proc/volumetric_flow(var/pressure_delta, var/length = 1, var/viscosity = 1)
+    return (pressure_delta * volume**2) / (8 * length * viscosity * M_PI) * GAS_FLOW_RATE
