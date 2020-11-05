@@ -5,6 +5,9 @@
 	graph.Disconnect(src)
 	return ..()
 
+/datum/node/proc/get_edges()
+	return graph.edges[src]
+
 /datum/node/physical
 	var/atom/holder
 
