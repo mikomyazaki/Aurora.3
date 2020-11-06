@@ -11,7 +11,7 @@
 
 /obj/pipe/atmospherics/Destroy()
     // Release contained gas into the environment
-    loc.assume_air(get_gas())
+    loc.assume_air(split_pipe_gas_share())
     return ..()
 
 /obj/pipe/atmospherics/onConnect(var/obj/pipe/atmospherics/P)

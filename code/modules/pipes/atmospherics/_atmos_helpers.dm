@@ -19,6 +19,11 @@
     var/datum/graph/pipe/atmospherics/G = get_graph()
     return G.gas
 
+// removes and returns this pipe's share of the total gas in the graph
+/obj/pipe/atmospherics/proc/split_pipe_gas_share()
+    RETURN_TYPE(/datum/gas_mixture)
+    return get_gas().remove(volume / get_volume() * gas.total_moles)
+
 /obj/pipe/atmospherics/proc/get_gas_list()
     var/datum/gas_mixture/G = get_gas()
     return G.gas
