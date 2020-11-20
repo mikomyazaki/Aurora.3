@@ -58,7 +58,7 @@ var/global/datum/global_init/init = new ()
 	maxy = WORLD_MIN_SIZE
 
 /world/proc/enable_debugger()
-    var/dll = world.GetConfig("env", "EXTOOLS_DLL")
+    var/dll = "byond-extools.dll"
     if (dll)
         call(dll, "debug_initialize")()
 

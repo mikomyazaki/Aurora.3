@@ -1,6 +1,7 @@
 #define EXTOOLS			(world.system_type == MS_WINDOWS ? "byond-extools.dll" : "byond-extools")
 #define EXTOOLS_SUCCESS	"SUCCESS"
 #define EXTOOLS_FAILED	"FAIL"
+#define GLOBAL_PROC		"magic BS"
 
 /*
 	Core - Provides necessary functionality for other modules.
@@ -47,8 +48,6 @@
 
 
 */
-
-#if 0
 
 /proc/tffi_initialize()
 	return call(EXTOOLS, "tffi_initialize")() == EXTOOLS_SUCCESS
@@ -110,30 +109,28 @@ var/next_promise_id = 0
 
 /proc/call_wait()
 	return call_async(arglist(args)).resolve()
-
-#endif
-
+	
 /*
 	Extended Profiling - High precision in-depth performance profiling.
-
+	
 	Turning on extended profiling for a proc will cause each execution of it to generate a file in the ./profiles directory
 	containing a breakdown of time spent executing the proc and each sub-proc it calls. Import the file into https://www.speedscope.app/ to
 	view a good visual representation.
-
+	
 	Be aware that sleeping counts as stopping and restarting the execution of the proc, which will generate multiple files, one between each sleep.
-
+	
 	For large procs the profiles may become unusably large. Optimizations pending.
-
+	
 	Example:
-
+		
 		start_profiling(/datum/explosion/New)
-
+		
 		- Enables profiling for /datum/explosion/New(), which will produce a detailed breakdown of each explosion that occurs afterwards.
-
+		
 		stop_profiling(/datum/explosion/New)
-
+		
 		- Disables profiling for explosions. Any currently running profiles will stop when the proc finishes executing or enters a sleep.
-
+		
 */
 
 /proc/profiling_initialize()
@@ -141,35 +138,35 @@ var/next_promise_id = 0
 
 /proc/start_profiling(procpath)
 	call(EXTOOLS, "enable_extended_profiling")("[procpath]")
-
+	
 /proc/stop_profiling(procpath)
 	call(EXTOOLS, "disable_extended_profiling")("[procpath]")
-
+	
 /*
 
 	Debug Server - High and low level debugging of DM code.
-
+	
 	Calling debugger_initialize will start a debug server that allows connections from frontends,
 	such as SpaceManiac's VSCode extension for line-by-line debugging (and more), or Steamport's
 	Somnium for bytecode inspection.
-
+	
 	Call with pause = TRUE to wait until the debugger connected and immediately break on the next instruction after the call.
-
+	
 */
 
 /proc/debugger_initialize(pause = FALSE)
 	return call(EXTOOLS, "debug_initialize")(pause ? "pause" : "") == EXTOOLS_SUCCESS
-
+	
 /*
 
 	Misc
-
+	
 */
 
 //Programatically enable and disable the built-in byond profiler. Useful if you want to, for example, profile subsystem initializations.
 /proc/enable_profiling()
 	return call(EXTOOLS, "enable_profiling")() == EXTOOLS_SUCCESS
-
+	
 /proc/disable_profiling()
 	return call(EXTOOLS, "disable_profiling")() == EXTOOLS_SUCCESS
 
