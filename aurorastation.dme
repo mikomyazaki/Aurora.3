@@ -257,6 +257,7 @@
 #include "code\controllers\subsystems\processing\projectiles.dm"
 #include "code\controllers\subsystems\processing\psi.dm"
 #include "code\controllers\subsystems\processing\shuttle.dm"
+#include "code\controllers\subsystems\processing\turrets.dm"
 #include "code\controllers\subsystems\processing\vueui.dm"
 #include "code\datums\ai_law_sets.dm"
 #include "code\datums\ai_laws.dm"

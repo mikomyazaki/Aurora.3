@@ -42,6 +42,8 @@
 	var/last_fired = 0		//1: if the turret is cooling down from a shot, 0: turret is ready to fire
 	var/shot_delay = 15		//1.5 seconds between each shot
 
+	var/turret_range = 7
+
 	var/check_arrest = 1	//checks if the perp is set to arrest
 	var/check_records = 1	//checks if a security record exists at all
 	var/check_weapons = 0	//checks if it can shoot people that have a weapon they aren't authorized to have
@@ -72,7 +74,6 @@
 	var/list/targets = list()			//list of primary targets
 	var/list/secondarytargets = list()	//targets that are least important
 	var/resetting = FALSE
-	var/fast_processing = FALSE
 
 /obj/machinery/porta_turret/examine(mob/user)
 	..()
@@ -144,7 +145,7 @@
 			if(SOME_TC.lethal != lethal && !egun)
 				SOME_TC.enabled = 0
 			src.setState(SOME_TC)
-	START_PROCESSING(SSprocessing, src)
+	START_PROCESSING(SSturrets, src)
 
 /obj/machinery/porta_turret/Destroy()
 	var/area/control_area = get_area(src)
@@ -154,10 +155,7 @@
 			aTurretID.turretModes()
 	qdel(spark_system)
 	spark_system = null
-	if(fast_processing)
-		STOP_PROCESSING(SSfast_process, src)
-	else
-		STOP_PROCESSING(SSprocessing, src)
+	STOP_PROCESSING(SSturrets, src)
 
 	. = ..()
 
@@ -260,14 +258,9 @@
 		if(href_list["command"] == "enable")
 			enabled = value
 			if (enabled)
-				START_PROCESSING(SSprocessing, src)
-				fast_processing = FALSE
-			else if(fast_processing)
-				STOP_PROCESSING(SSfast_process, src)
-				fast_processing = FALSE
-				popDown()
+				START_PROCESSING(SSturrets, src)
 			else
-				STOP_PROCESSING(SSprocessing, src)
+				STOP_PROCESSING(SSturrets, src)
 				popDown()
 		else if(href_list["command"] == "lethal")
 			lethal = value
@@ -476,44 +469,28 @@
 	spark_system.queue()	//creates some sparks because they look cool
 	update_icon()
 
-/obj/machinery/porta_turret/process()
-	//the main machinery process
+/obj/machinery/porta_turret/proc/is_active()
 	if(stat & (NOPOWER|BROKEN))
 		//if the turret has no power or is broken, make the turret pop down if it hasn't already
 		popDown()
-		return
+		return FALSE
 
 	if(!enabled)
 		//if the turret is off, make it pop down
 		popDown()
+		return FALSE
+	return TRUE
+
+/obj/machinery/porta_turret/process()
+	//the main machinery process
+	if(!is_active())
 		return
-
-	targets = list()
-	secondarytargets = list()
-
-	for(var/v in view(world.view, src))
-		if(isliving(v))
-			assess_and_assign_living(v, targets, secondarytargets)
-		if(istype(v,/obj/structure/closet))
-			assess_and_assign_closet(v, targets, secondarytargets)
-
 
 	if(!tryToShootAt(targets))
 		if(!tryToShootAt(secondarytargets) && !resetting) // if no valid targets, go for secondary targets
 			if(raised || raising) // we've already reset
 				resetting = TRUE
 				addtimer(CALLBACK(src, .proc/reset), 6 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE) // no valid targets, close the cover
-
-	if(targets.len || secondarytargets.len)
-		if(!fast_processing)
-			STOP_PROCESSING(SSprocessing, src)
-			START_PROCESSING(SSfast_process, src)
-			fast_processing = TRUE
-	else
-		if(fast_processing)
-			STOP_PROCESSING(SSfast_process, src)
-			START_PROCESSING(SSprocessing, src)
-			fast_processing = FALSE
 
 	if(auto_repair && (health < maxhealth))
 		use_power(20000)
@@ -752,13 +729,9 @@
 		return
 	src.enabled = TC.enabled
 	if (enabled)
-		START_PROCESSING(SSprocessing, src)
-		fast_processing = FALSE
-	else if(fast_processing)
-		STOP_PROCESSING(SSprocessing, src)
-		fast_processing = FALSE
+		START_PROCESSING(SSturrets, src)
 	else
-		STOP_PROCESSING(SSfast_process, src)
+		STOP_PROCESSING(SSturrets, src)
 	if(egun) //If turret can switch modes.
 		src.lethal = TC.lethal
 		src.lethal_icon = TC.lethal
@@ -975,7 +948,7 @@
 
 					Turret.cover_set = case_sprite_set
 					Turret.icon_state = "cover_[case_sprite_set]"
-					START_PROCESSING(SSprocessing, Turret)
+					START_PROCESSING(SSturrets, Turret)
 					qdel(src) // qdel
 
 			else if(I.iscrowbar())
