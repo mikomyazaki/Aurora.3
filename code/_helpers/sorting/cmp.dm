@@ -85,3 +85,12 @@
 
 /proc/cmp_clientcolor_priority(datum/client_color/A, datum/client_color/B)
 	return B.priority - A.priority
+
+/proc/cmp_profile_avg_time_dsc(list/A, list/B)
+	return (B[PROFILE_ITEM_TIME]/(B[PROFILE_ITEM_COUNT] || 1)) - (A[PROFILE_ITEM_TIME]/(A[PROFILE_ITEM_COUNT] || 1))
+
+/proc/cmp_profile_time_dsc(list/A, list/B)
+	return B[PROFILE_ITEM_TIME] - A[PROFILE_ITEM_TIME]
+
+/proc/cmp_profile_count_dsc(list/A, list/B)
+	return B[PROFILE_ITEM_COUNT] - A[PROFILE_ITEM_COUNT]

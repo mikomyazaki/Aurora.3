@@ -227,7 +227,10 @@ var/list/admin_verbs_debug = list(
 	/client/proc/connect_ntsl,
 	/client/proc/disconnect_ntsl,
 	/turf/proc/view_chunk,
-	/turf/proc/update_chunk
+	/turf/proc/update_chunk,
+	/client/proc/start_line_profiling,
+	/client/proc/stop_line_profiling,
+	/client/proc/show_line_profiling
 	)
 
 var/list/admin_verbs_paranoid_debug = list(
